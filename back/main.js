@@ -6,14 +6,23 @@ var http = require('http');
 var express = require('express'),
     app = module.exports.app = express();
 
+app.use(function (req, res, next) {
+
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost');
+});
+
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
-server.listen(80);
+server.listen(3000);
 
 app.get('/', function (req, res) {
   res.send('Hello, world!');
 });
 
+app.get('/getGeneratorsInfo', (req, res) => {
+    // add generator info getting function
+    res.send([{on: true}, {on: false}]) 
+});
 
 setInterval(() => {
     getLatestMarketValue((latestMarketValue) => {
