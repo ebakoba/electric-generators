@@ -106,8 +106,10 @@ var applyGeneratorsStatuses = (generators) => {
   generators.forEach((generator, index) => {
     console.log(generator);
     if(generator.turnedOn){
+      console.log('on', pinoutList[index]);
       rpio.write(pinoutList[index], rpio.LOW);
     } else {
+      console.log('off', pinoutList[index]);
       rpio.write(pinoutList[index], rpio.HIGH);
     }
   });
