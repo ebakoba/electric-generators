@@ -3,7 +3,7 @@ firstTime = true;
 var socket = io.connect('http://' + location.host + ':3000');
 
 socket.on('currentPriceUpdate', (data) => {
-    document.getElementById('livePrice').innerText = data.price + ' €/MWh';
+    document.getElementById('livePrice').innerText = data.price + ' \u20ac/MWh';
 });
 
 socket.on('generatorsInfoUpdate', (generators) => {
