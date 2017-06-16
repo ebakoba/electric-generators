@@ -48,6 +48,7 @@ setInterval(() => {
 
         updateGeneratorsStatuses(latestMarketValue, (error, updatedGenerators) => {
           getGeneratorsInfo((error, generators) => {
+            applyGeneratorsStatuses(generators);
             io.sockets.emit('generatorsInfoUpdate', generators);
           })
         });
@@ -75,7 +76,6 @@ var getGeneratorsInfo = (callback) => {
   connection.query('SELECT * FROM generators ORDER BY id', (error, results) => {
         if(error) return callback({error: 'query error'});
         
-        applyGeneratorsStatuses(results);
         return callback(null, results);
     });
 }
