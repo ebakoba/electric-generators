@@ -1,6 +1,10 @@
 
-var nordpool = require('nordpool')
-var prices = new nordpool.Prices()
+var nordpool = require('nordpool');
+var prices = new nordpool.Prices();
+
+var rpio = require('rpio');
+rpio.open(7, rpio.OUTPUT, rpio.HIGH);
+rpio.open(11, rpio.OUTPUT, rpio.HIGH);
 
 var bodyParser = require('body-parser');
 var http = require('http');
@@ -70,7 +74,8 @@ var getLatestMarketValue = (callback) => {
 var getGeneratorsInfo = (callback) => {
   connection.query('SELECT * FROM generators ORDER BY id', (error, results) => {
         if(error) return callback({error: 'query error'});
-
+        
+        applyGeneratorsStatuses(results);
         return callback(null, results);
     });
 }
@@ -86,7 +91,7 @@ var updateGeneratorsStatuses = (latestMarketValue, callback) => {
   });
 }
 
-updateGeneratorsPrices = (prices, callback) => {
+var updateGeneratorsPrices = (prices, callback) => {
   prices.forEach((price, index) => {
     connection.query('UPDATE generators SET price=? WHERE id=?', [price, index+1], (error, result) => {
       if(error) return callback(error);
@@ -96,8 +101,13 @@ updateGeneratorsPrices = (prices, callback) => {
   });
 }
 
-var applyGeneratorsStatuses = () => {
-  getGeneratorsInfo(() => {
-
+var applyGeneratorsStatuses = (generators) => {
+  var pinoutList = [7, 11];
+  generators.forEach((generator, index) => {
+    if(generator.turnedOn){
+      rpio.write(pinoutList[index], rpio.LOW);
+    } else {
+      rpio.write(pinoutList[index], rpio.HIGH);
+    }
   });
 }
