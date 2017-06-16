@@ -46,8 +46,9 @@ setInterval(() => {
     getLatestMarketValue((error, latestMarketValue) => {
         if (error) return null;
 
-        updateGeneratorsStatuses(latestMarketValue, (error, updatedGenerators) => {
+        updateGeneratorsStatuses(latestMarketValue, (error) => {
           getGeneratorsInfo((error, generators) => {
+            console.log('generators', generators);
             applyGeneratorsStatuses(generators);
             io.sockets.emit('generatorsInfoUpdate', generators);
           })
