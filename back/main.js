@@ -2,9 +2,11 @@
 var nordpool = require('nordpool')
 var prices = new nordpool.Prices()
 
+var bodyParser = require('body-parser');
 var http = require('http');
 var express = require('express'),
     app = module.exports.app = express();
+
 
 var mysql      = require('mysql');
 var connection = mysql.createConnection({
@@ -20,28 +22,35 @@ app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Headers", "X-Requested-With");
   next();
 });
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }))
 
 var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 server.listen(3000);
 
-app.get('/', function (req, res) {
-  res.send('Hello, world!');
-});
+app.post('/updatePrices', function (req, res) {
+  updateGeneratorsPrices(req.body.prices.split(','), (error) => {
+    if(error) return res.sendStatus(500);
 
-app.get('/getGeneratorsInfo', (req, res) => {
-    getGeneratorsInfo((error, generators) => {
-      if(error) return res.send(500);
-
-      return res.send(generators);
-    });
+    io.sockets.emit('pricesUpdated', req.body.prices.split(','));
+    return res.sendStatus(200);
+  });
 });
 
 setInterval(() => {
-    getLatestMarketValue((latestMarketValue) => {
+    getLatestMarketValue((error, latestMarketValue) => {
+        if (error) return null;
+
+        updateGeneratorsStatuses(latestMarketValue, (error, updatedGenerators) => {
+          getGeneratorsInfo((error, generators) => {
+            io.sockets.emit('generatorsInfoUpdate', generators);
+          })
+        });
+
         io.sockets.emit('currentPriceUpdate', { price: latestMarketValue });
     });
-}, 2000);
+}, 1000);
 
 
 var getLatestMarketValue = (callback) => {
@@ -61,8 +70,34 @@ var getLatestMarketValue = (callback) => {
 var getGeneratorsInfo = (callback) => {
   connection.query('SELECT * FROM generators ORDER BY id', (error, results) => {
         if(error) return callback({error: 'query error'});
-        
-        console.log(results);
+
         return callback(null, results);
     });
+}
+
+var updateGeneratorsStatuses = (latestMarketValue, callback) => {
+  connection.query('UPDATE generators SET turnedOn=TRUE WHERE price<?', [latestMarketValue], (error, results) => {
+    if(error) return callback(error);
+    connection.query('UPDATE generators SET turnedOn=FALSE WHERE price>?', [latestMarketValue], (error, results) => {
+      if(error) return callback(error);
+
+      return callback(null);
+    });
+  });
+}
+
+updateGeneratorsPrices = (prices, callback) => {
+  prices.forEach((price, index) => {
+    connection.query('UPDATE generators SET price=? WHERE id=?', [price, index+1], (error, result) => {
+      if(error) return callback(error);
+
+      if(index+1 == prices.length) return callback();
+    });
+  });
+}
+
+var applyGeneratorsStatuses = () => {
+  getGeneratorsInfo(() => {
+
+  });
 }

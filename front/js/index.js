@@ -1,13 +1,21 @@
 
-
+firstTime = true;
 var socket = io.connect('http://localhost:3000');
 
-socket.on('currentPriceUpdate', function (data) {
+socket.on('currentPriceUpdate', (data) => {
     document.getElementById('livePrice').innerText = data.price + ' €/MWh';
 });
 
-loadGeneratorInfo((generatorInfo) => {
-    useGeneratorInfo(generatorInfo);
+socket.on('generatorsInfoUpdate', (generators) => {
+    console.log(generators);
+    useGeneratorInfo(generators);
+});
+
+socket.on('pricesUpdated', (prices) => {
+    prices.forEach((price, index) => {
+        var priceTextfields = document.getElementsByClassName('price-textfield');
+        populatePrices(price, priceTextfields[index]);
+    });
 });
 
 
@@ -29,8 +37,13 @@ function useGeneratorInfo(generatorInfo) {
         var textElements = document.getElementsByClassName('generator-text');
         changeGeneratorState(generator.turnedOn, buttonElements[index], textElements[index]);
 
-        var priceInputs = document.getElementsByClassName('price-input');
-        populatePrices(generator.price, priceInputs[index]);
+        if(firstTime){
+            var priceTextfields = document.getElementsByClassName('price-textfield');
+            populatePrices(generator.price, priceTextfields[index]);
+            if(index+1 == generatorInfo.length){
+                firstTime = !firstTime;
+            }
+        }
     });
 }
 
@@ -38,13 +51,24 @@ function populatePrices(price, inputElement) {
     inputElement.MaterialTextfield.change(price);
 }
 
-function loadGeneratorInfo(callback) {
+function getPriceInfo() {
+    var priceInputs = document.getElementsByClassName('price-input');
+
+    var inputValues = [];
+    for (var i = 0; i < priceInputs.length; i++) {
+        var input = priceInputs[i];
+        
+        inputValues[i] = input.value;
+    }
+    return inputValues;
+}
+
+function postPrices() {
+    
+    var priceInfo = getPriceInfo();
+    
     var xhttp = new XMLHttpRequest();
-    xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            return callback(JSON.parse(this.responseText));
-        }
-    };
-    xhttp.open("GET", "http://localhost:3000/getGeneratorsInfo", true);
-    xhttp.send();
+    xhttp.open("POST", "http://localhost:3000/updatePrices", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send('prices=' + getPriceInfo());
 }
