@@ -68,7 +68,7 @@ function postPrices() {
     var priceInfo = getPriceInfo();
     
     var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "http://localhost:3000/updatePrices", true);
+    xhttp.open("POST", "http://" + location.host + ":3000/updatePrices", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhttp.send('prices=' + getPriceInfo());
 }
