@@ -20,24 +20,24 @@
           <div style="padding-bottom:0;" class="mdl-card__supporting-text">
             <div style="padding-bottom:0;" class="mdl-grid">
               <div class="mdl-cell mdl-cell--6-col"> 
-                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-1">
-                  <input type="checkbox" id="switch-1" class="mdl-switch__input generator-switch">
-                  <span class="mdl-switch__label">Generator 1</span>
-                </label>
-                <div class="mdl-textfield mdl-js-textfield">
-                  <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sample2">
-                  <label class="mdl-textfield__label" for="sample2">Starting price</label>
+                <span class="mdl-chip mdl-chip--contact">
+                    <span class="mdl-chip__contact mdl-color--red mdl-color-text--white generator-button">X</span>
+                    <span class="mdl-chip__text generator-text">OFF</span>
+                </span>
+                <div class="mdl-textfield mdl-js-textfield price-input">
+                  <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="price-one">
+                  <label class="mdl-textfield__label" for="price-one">Starting price</label>
                   <span class="mdl-textfield__error">Input is not a number!</span>
                 </div>
               </div>
               <div class="mdl-cell mdl-cell--6-col"> 
-                <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-2">
-                  <input type="checkbox" id="switch-2" class="mdl-switch__input generator-switch">
-                  <span class="mdl-switch__label">Generator 2</span>
-                </label>
-                <div class="mdl-textfield mdl-js-textfield">
-                  <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="sample2">
-                  <label class="mdl-textfield__label" for="sample2">Starting price</label>
+                <span class="mdl-chip mdl-chip--contact">
+                    <span class="mdl-chip__contact mdl-color--teal mdl-color-text--white generator-button">O</span>
+                    <span class="mdl-chip__text generator-text">ON</span>
+                </span>
+                <div class="mdl-textfield mdl-js-textfield price-input">
+                  <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" id="price-two">
+                  <label class="mdl-textfield__label" for="price-two">Starting price</label>
                   <span class="mdl-textfield__error">Input is not a number!</span>
                 </div>
               </div>
@@ -55,7 +55,7 @@
           </div>
           <div class="mdl-card__supporting-text">
             <h1 id="livePrice">
-              32.43 €/MWh
+              - €/MWh
             </h1>
           </div>
         </div>

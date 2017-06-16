@@ -6,9 +6,19 @@ var http = require('http');
 var express = require('express'),
     app = module.exports.app = express();
 
-app.use(function (req, res, next) {
+var mysql      = require('mysql');
+var connection = mysql.createConnection({
+  host     : 'localhost',
+  user     : 'root',
+  password : 'root',
+  database : 'electric'
+});
 
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost');
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  next();
 });
 
 var server = http.createServer(app);
@@ -20,8 +30,11 @@ app.get('/', function (req, res) {
 });
 
 app.get('/getGeneratorsInfo', (req, res) => {
-    // add generator info getting function
-    res.send([{on: true}, {on: false}]) 
+    getGeneratorsInfo((error, generators) => {
+      if(error) return res.send(500);
+
+      return res.send(generators);
+    });
 });
 
 setInterval(() => {
@@ -35,11 +48,21 @@ var getLatestMarketValue = (callback) => {
   prices.hourly({currency: 'EUR'}, (error, results) => {
     if(error) console.log(error);
     
+    if(!results) return callback({error: 'No results'});
     var estonianResults = results.filter((result) => {
       if(result.area === "EE"){
         return result;
       }
     });
-    return callback(estonianResults[estonianResults.length-1].value);
+    return callback(null, estonianResults[estonianResults.length-1].value);
   });
+}
+
+var getGeneratorsInfo = (callback) => {
+  connection.query('SELECT * FROM generators ORDER BY id', (error, results) => {
+        if(error) return callback({error: 'query error'});
+        
+        console.log(results);
+        return callback(null, results);
+    });
 }
