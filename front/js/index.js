@@ -1,6 +1,6 @@
 
 firstTime = true;
-var socket = io.connect('http://localhost:3000');
+var socket = io.connect('http://' + location.host + ':3000');
 
 socket.on('currentPriceUpdate', (data) => {
     document.getElementById('livePrice').innerText = data.price + ' €/MWh';
