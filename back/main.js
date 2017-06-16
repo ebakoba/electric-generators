@@ -104,6 +104,7 @@ var updateGeneratorsPrices = (prices, callback) => {
 var applyGeneratorsStatuses = (generators) => {
   var pinoutList = [7, 11];
   generators.forEach((generator, index) => {
+    console.log(generator);
     if(generator.turnedOn){
       rpio.write(pinoutList[index], rpio.LOW);
     } else {
